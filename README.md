@@ -28,7 +28,7 @@ oc new-app --name inventory-database -e POSTGRESQL_USER=inventory -e POSTGRESQL_
 
 App:
 
-mvn clean compile package -DskipTests -f ./inventory-service
+mvn clean compile package -DskipTests  -P native  -f ./inventory-service
 
 oc label deployment/inventory app.kubernetes.io/part-of=inventory --overwrite && \
 oc label deployment/inventory-database app.kubernetes.io/part-of=inventory app.openshift.io/runtime=postgresql --overwrite && \
@@ -43,7 +43,7 @@ oc new-app --name catalog-database -e POSTGRESQL_USER=catalog -e POSTGRESQL_PASS
 
 App:
 
-mvn clean install -Ddekorate.deploy=true -DskipTests -f ./catalog-service
+mvn clean compile package -P native  -DskipTests -f ./catalog-service-quarkus
 
 oc label dc/catalog app.kubernetes.io/part-of=catalog app.openshift.io/runtime=spring-boot --overwrite && \
 oc label deployment/catalog-database app.kubernetes.io/part-of=catalog app.openshift.io/runtime=postgresql --overwrite && \
@@ -59,7 +59,7 @@ oc new-app quay.io/openshiftlabs/ccn-infinispan:12.0.0.Final-1 --name=datagrid-s
 
 App:
 
-mvn clean package -DskipTests -f ./cart-service
+mvn clean package -DskipTests  -P native  -f ./cart-service
 
 ### Orders
 
@@ -69,7 +69,7 @@ oc new-app -n cloudnativeapps  --docker-image quay.io/openshiftlabs/ccn-mongo:4.
 
 App:
 
-mvn clean package -DskipTests -f ./order-service
+mvn clean package -DskipTests  -P native  -f ./order-service
 
 ### Web-ui
 
