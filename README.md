@@ -45,11 +45,11 @@ App:
 
 mvn clean compile package -P native  -DskipTests -f ./catalog-service-quarkus
 
-oc label dc/catalog app.kubernetes.io/part-of=catalog app.openshift.io/runtime=spring-boot --overwrite && \
+oc label deployment/catalog app.kubernetes.io/part-of=catalog app.openshift.io/runtime=quarkue --overwrite && \
 oc label deployment/catalog-database app.kubernetes.io/part-of=catalog app.openshift.io/runtime=postgresql --overwrite && \
-oc annotate dc/catalog app.openshift.io/connects-to=inventory,catalog-database --overwrite && \
-oc annotate dc/catalog app.openshift.io/vcs-uri=https://github.com/RedHat-Middleware-Workshops/cloud-native-workshop-v2m4-labs.git --overwrite && \
-oc annotate dc/catalog app.openshift.io/vcs-ref=ocp-4.14 --overwrite
+oc annotate deployment/catalog app.openshift.io/connects-to=inventory,catalog-database --overwrite && \
+oc annotate deployment/catalog app.openshift.io/vcs-uri=https://github.com/RedHat-Middleware-Workshops/cloud-native-workshop-v2m4-labs.git --overwrite && \
+oc annotate deployment/catalog app.openshift.io/vcs-ref=ocp-4.14 --overwrite
 
 ### Shopping Cart
 
@@ -61,6 +61,10 @@ App:
 
 mvn clean package -DskipTests  -P native  -f ./cart-service
 
+oc label deployment/cart app.kubernetes.io/part-of=cart --overwrite && \
+oc label deployment/datagrid-service app.kubernetes.io/part-of=cart --overwrite && \
+oc annotate deployment/cart app.openshift.io/connects-to=datagrid-service --overwrite 
+
 ### Orders
 
 Mongo db:
@@ -71,12 +75,16 @@ App:
 
 mvn clean package -DskipTests  -P native  -f ./order-service
 
+oc label deployment/order app.kubernetes.io/part-of=orders --overwrite && \
+oc label deployment/order-database app.kubernetes.io/part-of=orders --overwrite && \
+oc annotate deployment/order app.openshift.io/connects-to=order-database --overwrite 
+
 ### Web-ui
 
 cd ./coolstore-ui && npm install --save-dev nodeshift
 
 npm run nodeshift && oc expose svc/coolstore-ui && \
 oc label dc/coolstore-ui app.kubernetes.io/part-of=coolstore --overwrite && \
-oc annotate dc/coolstore-ui app.openshift.io/connects-to=order-cart,catalog,inventory,order --overwrite && \
+oc annotate dc/coolstore-ui app.openshift.io/connects-to=cart,catalog,inventory,order --overwrite && \
 oc annotate dc/coolstore-ui app.openshift.io/vcs-uri=https://github.com/RedHat-Middleware-Workshops/cloud-native-workshop-v2m4-labs.git --overwrite && \
 oc annotate dc/coolstore-ui app.openshift.io/vcs-ref=ocp-4.14 --overwrite
