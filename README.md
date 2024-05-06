@@ -87,6 +87,10 @@ Microservices:
 
 ![Boot time](./assets/images/boot-time.png "Boot time")
 
+#### Conclusion
+
+The microservices version of the Coolstore has significantly shorter boot time than the monolith application.
+
 ### Resource usage
 
 Resource usage measuring the entire footprint of the OpenShift namespace containing all the components required to support each application, e.g. database instances, deployed applications, message queue instances.
@@ -105,6 +109,12 @@ The resource usage was measured three times.
 
 ![CPU](./assets/images/cpu.png "CPU")
 
+#### Conclusion
+
+The microservices application deployment uses less memory than the monolith application deployment.  This is more significant as the application is scaled to multiple instances and under load.
+
+The microservices application deployment uses significantly less CPU than the monolith application deployment.  This is more significant as the application is scaled to multiple instances and under load.
+
 ### Transactions per second
 
 This chart shows the transactions per second when under load from JMeter test simulating 1000 users, 3 requests per session, 100 sessions.  Total 300,000 RESTful calls.
@@ -112,3 +122,7 @@ This chart shows the transactions per second when under load from JMeter test si
 The test was performed twice per application. The first time there was a single instance of the application, the second time the application was scaled to 3 instances.  In the case of the microservices application the Catalog and Cart services are scaled to three instances
 
 ![TPS](./assets/images/tps.png "TPS")
+
+#### Conclusion
+
+The microservices application processes transactions faster than the monolith application.  In the case of the scaled instances under load, the microservices applications recorded 5240 tps versus 505 tps for the Monolith application.
