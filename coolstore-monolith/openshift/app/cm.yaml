@@ -1,0 +1,16 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: eap-config
+data: 
+  # Configuration to connnect to PostgreSQL
+  POSTGRESQL_DATABASE: postgresDB
+  POSTGRESQL_DATASOURCE: CoolstoreDS
+  POSTGRESQL_SERVICE_HOST: postgresql
+
+  # Configuration to connect to AMQ Broker
+  MQ_SERVICE_PREFIX_MAPPING: eap74-amq7=MQ
+  EAP74_AMQ_TCP_SERVICE_HOST: eap74-amq7-hdls-svc
+  EAP74_AMQ_TCP_SERVICE_PORT: "61616"
+  MQ_TOPICS: orders
+  AMQ_JNDI: java:/eap74-amq7/ConnectionFactory

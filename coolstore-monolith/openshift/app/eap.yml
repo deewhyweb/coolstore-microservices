@@ -1,0 +1,37 @@
+apiVersion: wildfly.org/v1alpha1
+kind: WildFlyServer
+metadata:
+  name: eap8
+spec:
+  applicationImage: eap8:latest
+  replicas: 1
+  envFrom:
+    - configMapRef:
+        name: eap-config
+  env:
+    # Credentials to connect to the PostgreSQL databases
+    # and AMQ Broker are taken from their secrets
+    - name: POSTGRESQL_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          key: database-password
+          name: postgresql
+    - name: POSTGRESQL_USER
+      valueFrom:
+        secretKeyRef:
+          key: database-user
+          name: postgresql
+    - name: MQ_USERNAME
+      valueFrom:
+        secretKeyRef:
+          key: AMQ_USER
+          name: eap74-amq7-credentials-secret
+    - name: MQ_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          key: AMQ_PASSWORD
+          name: eap74-amq7-credentials-secret
+    # Make sure to update the KEYCLOAK_URL with the content of `oc get route keycloak`
+    # Do not forget to prepend `https://` and append `/auth`
+    - name: KEYCLOAK_URL
+      value: https://keycloak-coolstore.apps.cluster-jfwv4.jfwv4.sandbox1700.opentlc.com/auth

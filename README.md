@@ -1,90 +1,114 @@
-The CCN Roadshow(Dev Track) Module 4 Labs 2022
-===
+# Monolith vs Microservices comparison
 
-This repo provides templates, generated Java codes, empty configuration for each labs that developers need to implement cloud-native microservices in workshop. 
+This repo contains two versions of the Red Hat Coolstore application. 
 
-The included Java projects and/or installation files are here:
+* A monolith application running on JBoss EAP
+* A Microservices application consisting of the following
+    * A Quarkus Inventory application
+    * A Quarkus Catalog application
+    * A Quarkus Cart application
+    * A Quarkus Orders application
+    * A Node.js frontend UI.
 
-* Catalog Service - A Spring boot application running on JBoss Web Server (Tomcat) and PostgreSQL, serves products and prices for retail products
-* Cart Service - Quarkus application running on OpenJDK and native which manages shopping cart for each customer, together with infinispan/JDG
-* Inventory Service - Quarkus application running on OpenJDK and PostgreSQL, serves inventory and availability data for retail products
-* Order service  - Quarkus application service running on OpenJDK or native for writing and displaying reviews for products
-* User Service - Vert.x service running on JDK for managing users
-* Payment Service  - A Quarkus based FaaS with Knative 
+## Deployment
 
-OpenShift version - 4.14
+Each version of the Coolstore application is deployed in OpenShift as follows:
+
+### Monolith
+
+Components:
+* AMQ Broker instance:
+    * JBoss EAP in OpenShift does not include embedded messaging functionality.  Best practice for EAP on OpenShift is to use external message queue i.e. AMQ Broker (included in Runtimes and RHAF subscriptions)
+* PostgreSQL database:
+    * Used by the Coolstore EAP application to persist data
+* EAP8 application:
+    * Coolstore monolith application deployed using the JBoss EAP OpenShift operator
 
 
-## DEPLOYMENT
+![OpenShift Monolith deployment](./assets/images/monolith.png "OpenShift Monolith deployment")
 
-oc new-project cloudnativeapps
+[Instructions to deploy the monolith application](./monolith.md 'Monolith deployment')
 
-### Inventory
+### Microservices
 
-Database: 
+Components:
+* Coolstore application:
+    * A Node-js application serving the Coolstore web frontend
+* Orders application:
+    * Quarkus microservice providing order management functionality
+    * MongoDB database for persisting orders data
+* Catalog application:
+    * Quarkus microservice providing catalog management functionality
+    * PostrgreSQL database for persisting catalog data
+* Inventory application:
+    * Quarkus microservice providing inventory management functionality
+    * PostrgreSQL database for persisting inventory data
+* Cart application:
+    * Quarkus microservice providing cart management functionality
+    * Datagrid service providing state management for cart data
 
-oc project cloudnativeapps && \
-oc new-app --name inventory-database -e POSTGRESQL_USER=inventory -e POSTGRESQL_PASSWORD=mysecretpassword -e POSTGRESQL_DATABASE=inventory registry.redhat.io/rhel9/postgresql-15
+![OpenShift Microservices deployment](./assets/images/microservices.png "OpenShift Microservices deployment")
 
-App:
+[Instructions to deploy the microservices application](./microservices.md 'Microservices deployment')
 
-mvn clean compile package -DskipTests  -P native  -f ./inventory-service
+## Load testing
 
-oc label deployment/inventory app.kubernetes.io/part-of=inventory --overwrite && \
-oc label deployment/inventory-database app.kubernetes.io/part-of=inventory app.openshift.io/runtime=postgresql --overwrite && \
-oc annotate deployment/inventory app.openshift.io/connects-to=inventory-database --overwrite && \
-oc annotate deployment/inventory app.openshift.io/vcs-ref=ocp-4.14 --overwrite
+To perform load testing we'll use Apache JMeter. JMeter can be downloaded from [here](https://jmeter.apache.org/download_jmeter.cgi)
 
-### Catalog
+This repo contains two JMeter test plans
 
-Database:
+* quarkus.jmx, a test plan to test the Microservices application
+* eap.jmx, a test plan to test the monolith application
 
-oc new-app --name catalog-database -e POSTGRESQL_USER=catalog -e POSTGRESQL_PASSWORD=mysecretpassword -e POSTGRESQL_DATABASE=catalog registry.redhat.io/rhel9/postgresql-15
+To run these test plans, open the files in JMeter and edit the url to match the url of your OpenShift cluster.
 
-App:
+![JMeter configuration](./assets/images/JMeter.png "JMeter configuration")
 
-mvn clean compile package -P native  -DskipTests -f ./catalog-service-quarkus
+Edit the thread groups configuration to configure the number of users to simulate.
 
-oc label deployment/catalog app.kubernetes.io/part-of=catalog app.openshift.io/runtime=quarkue --overwrite && \
-oc label deployment/catalog-database app.kubernetes.io/part-of=catalog app.openshift.io/runtime=postgresql --overwrite && \
-oc annotate deployment/catalog app.openshift.io/connects-to=inventory,catalog-database --overwrite && \
-oc annotate deployment/catalog app.openshift.io/vcs-uri=https://github.com/RedHat-Middleware-Workshops/cloud-native-workshop-v2m4-labs.git --overwrite && \
-oc annotate deployment/catalog app.openshift.io/vcs-ref=ocp-4.14 --overwrite
+![JMeter thread group](./assets/images/thread-group.png "JMeter thread group")
 
-### Shopping Cart
+Click on the "play" button to run the tests.
 
-Infinispan:
+## Results
 
-oc new-app quay.io/openshiftlabs/ccn-infinispan:12.0.0.Final-1 --name=datagrid-service -e USER=user -e PASS=pass
+### Boot time	
+Measuring time to ready to accept connections
 
-App:
+Monolith:
+* JBoss EAP 8 application: 50 seconds
 
-mvn clean package -DskipTests  -P native  -f ./cart-service
+Microservices:
+* Cart: 2 seconds
+* Catalog: 10 seconds
+* Coolstore-ui: 2 seconds
+* Inventory: 10 seconds
+* Order: 2 seconds
 
-oc label deployment/cart app.kubernetes.io/part-of=cart --overwrite && \
-oc label deployment/datagrid-service app.kubernetes.io/part-of=cart --overwrite && \
-oc annotate deployment/cart app.openshift.io/connects-to=datagrid-service --overwrite 
+![Boot time](./assets/images/boot-time.png "Boot time")
 
-### Orders
+### Resource usage
 
-Mongo db:
+Resource usage measuring the entire footprint of the OpenShift namespace containing all the components required to support each application, e.g. database instances, deployed applications, message queue instances.
 
-oc new-app -n cloudnativeapps  --docker-image quay.io/openshiftlabs/ccn-mongo:4.0 --name=order-database
+The resource usage was measured three times. 
+* Under normal load, single instance of each application
+* Under load, single instance of each application
+* Under load, scaled to 3 instances of each application
 
-App:
 
-mvn clean package -DskipTests  -P native  -f ./order-service
+#### Memory consumption
 
-oc label deployment/order app.kubernetes.io/part-of=orders --overwrite && \
-oc label deployment/order-database app.kubernetes.io/part-of=orders --overwrite && \
-oc annotate deployment/order app.openshift.io/connects-to=order-database --overwrite 
+![Memory](./assets/images/memory.png "Memory")
 
-### Web-ui
+#### CPU utilization
 
-cd ./coolstore-ui && npm install --save-dev nodeshift
+![CPU](./assets/images/cpu.png "CPU")
 
-npm run nodeshift && oc expose svc/coolstore-ui && \
-oc label dc/coolstore-ui app.kubernetes.io/part-of=coolstore --overwrite && \
-oc annotate dc/coolstore-ui app.openshift.io/connects-to=cart,catalog,inventory,order --overwrite && \
-oc annotate dc/coolstore-ui app.openshift.io/vcs-uri=https://github.com/RedHat-Middleware-Workshops/cloud-native-workshop-v2m4-labs.git --overwrite && \
-oc annotate dc/coolstore-ui app.openshift.io/vcs-ref=ocp-4.14 --overwrite
+### Transactions per second
+
+This chart shows the transactions per second when under load from JMeter test simulating 1000 users, 3 requests per session, 100 sessions.  Total 300,000 RESTful calls.
+
+The test was performed twice per application. The first time there was a single instance of the application, the second time the application was scaled to 3 instances.  In the case of the microservices application the Catalog and Cart services are scaled to three instances
+
+![TPS](./assets/images/tps.png "TPS")
