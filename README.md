@@ -10,6 +10,8 @@ This repo contains two versions of the Red Hat Coolstore application.
     * A Quarkus Orders application
     * A Node.js frontend UI.
 
+The purpose of the repo is to provide a method to compare the entire footprint of the deployed applications including all dependant services e.g. databases, AMQ Broker instances, DataGrid deployments etc.  We deploy both versions of the Coolstore application in different namespaces and record metrics under normal load, under load, and under load scaled to multiple instances.
+
 ## Deployment
 
 Each version of the Coolstore application is deployed in OpenShift as follows:
@@ -87,7 +89,6 @@ Microservices:
 
 ![Boot time](./assets/images/boot-time.png "Boot time")
 
-#### Conclusion
 
 The microservices version of the Coolstore has significantly shorter boot time than the monolith application.
 
@@ -109,7 +110,6 @@ The resource usage was measured three times.
 
 ![CPU](./assets/images/cpu.png "CPU")
 
-#### Conclusion
 
 The microservices application deployment uses less memory than the monolith application deployment.  This is more significant as the application is scaled to multiple instances and under load.
 
@@ -123,6 +123,9 @@ The test was performed twice per application. The first time there was a single 
 
 ![TPS](./assets/images/tps.png "TPS")
 
-#### Conclusion
 
 The microservices application processes transactions faster than the monolith application.  In the case of the scaled instances under load, the microservices applications recorded 5240 tps versus 505 tps for the Monolith application.
+
+## Conclusion
+
+In every metric we see significant improvements in the microservices version compared to the monolith version.  The most noticeable improvement is in the number of transactions per second when scaled to multiple instances under load.  The Microservices application provides 10x improvements in throughput while consuming a third of the CPU resources and half the memory consumption.
