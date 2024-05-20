@@ -2,7 +2,6 @@ build:
   uri: https://github.com/deewhyweb/coolstore-microservices.git 
   contextDir: coolstore-monolith
   ref: main
-  contextDir: coolstore
   env:
     - name: POSTGRESQL_DRIVER_VERSION
       value: '42.6.0'

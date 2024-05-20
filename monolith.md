@@ -13,6 +13,10 @@ This repository has the complete coolstore monolith built as a Java EE 7 applica
 oc new-project user1-project
 ```
 
+```
+cd coolstore-monolith
+```
+
 ## Deploy the RH-SSO, AMQ and EAP Operators
 
 ```
@@ -29,9 +33,9 @@ Once they are installed, it will display:
 
 ```
 NAME                           DISPLAY                           VERSION         REPLACES                       PHASE
-rhsso-operator.7.6.2-opr-001                       Red Hat Single Sign-On Operator                           7.6.2-opr-001                 rhsso-operator.7.6.1-opr-005        Succeeded
-amq-broker-operator.v7.10.2-opr-2-0.1676475747.p   Red Hat Integration - AMQ Broker for RHEL 8 (Multiarch)   7.10.2-opr-2+0.1676475747.p   amq-broker-operator.v7.10.2-opr-1   Succeeded
-eap-operator.v2.3.10                               JBoss EAP                                                 2.3.10                        eap-operator.v2.3.9                 Succeeded
+rhsso-operator.7.6.8-opr-001                       Red Hat Single Sign-On Operator                           7.6.8-opr-001                 rhsso-operator.7.6.1-opr-005        Succeeded
+amq-broker-operator.v7.10.1-opr-2-0.1676475747.p   Red Hat Integration - AMQ Broker for RHEL 8 (Multiarch)   7.10.6-opr-1+0.1676475747.p   amq-broker-operator.v7.10.2-opr-1   Succeeded
+eap-operator.v3.0.0                               JBoss EAP                                                 3.0.0                        eap-operator.v2.3.9                 Succeeded
 ```
 
 ## Deploy the RH-SSO instance, the AMQ Broker and the PostgreSQL
