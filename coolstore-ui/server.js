@@ -1,4 +1,5 @@
 //  OpenShift sample Node application
+console.log("Start time " + new Date().getTime());
 var express = require('express'),
     http = require('http'),
     request = require('request'),
@@ -47,3 +48,4 @@ http.createServer(app).listen(port);
 console.log('HTTP Server running on http://%s:%s', ip, port);
 
 module.exports = app;
+console.log("End time " + new Date().getTime());

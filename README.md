@@ -75,17 +75,17 @@ Click on the "play" button to run the tests.
 ## Results
 
 ### Boot time	
-Measuring time to ready to accept connections
+Measuring time as reported in the app logs startup time.
 
 Monolith:
-* JBoss EAP 8 application: 50 seconds
+* JBoss EAP 8 application: 8.6 seconds
 
 Microservices:
-* Cart: 2 seconds
-* Catalog: 10 seconds
-* Coolstore-ui: 2 seconds
-* Inventory: 10 seconds
-* Order: 2 seconds
+* Cart: 0.195 seconds
+* Catalog: 0.075 seconds
+* Coolstore-ui: 0.025 seconds
+* Inventory: 0.076 seconds
+* Order: 0.032 seconds
 
 ![Boot time](./assets/images/boot-time.png "Boot time")
 
